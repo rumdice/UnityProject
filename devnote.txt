@@ -1,0 +1,17 @@
+Date : 2021.08.08
+패킷 테스트 유니티 프로젝트 생성
+
+유니티 빈 프로젝트 3d 템플릿 생성
+씬 빈 것 만들기
+Edit/Preference External Tool 에서 vs studio 연동
+
+visual studio 에서 프로젝트 열기 
+최상단 폴더 선택, 솔루션이 빌드 된다
+
+c# 스크립트 작성 준비
+Asset/Scenes 처럼 Asset의 하위 폴더에 Scripts 폴더 생성하면 유니티에도 반영됨
+
+유니티에서 C# 스크립트 생성
+기본 틀이 잡혀서 .cs 파일 생성됨.
+
+솔루션 상에서 빌드, 디버깅 가능.
