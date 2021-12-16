@@ -1,34 +1,23 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using NativeWebSocket;
-using ChatPacketStruct;
+using RankPacketStruct;
 
-public class ChatTest : MonoBehaviour
+public class RankTest : MonoBehaviour
 {
-    private const string ChatServerUrl = "ws://localhost:4000";
+    private const string RankServerUrl = "ws://localhost:9090";
     private WebSocket webSocket;
 
     // Start is called before the first frame update
     private async void Start()
     {
-        Debug.Log("ChatTest Start!");
-        webSocket = new WebSocket(ChatServerUrl);
+        Debug.Log("RankTest Start!");
+        webSocket = new WebSocket(RankServerUrl);
 
         webSocket.OnOpen += OnOpen;
         webSocket.OnError += OnError;
         webSocket.OnClose += OnClose;
 
-        // ±‚∫ª ¿¿¥‰ πﬁ¿∫ ∏ﬁΩ√¡ˆ «•±‚
-        //webSocket.OnMessage += (bytes) => 
-        //{
-        //    Debug.Log("OnMessage!");
-        //    Debug.Log(bytes);
-
-        //    // getting the message as a string
-        //    var message = System.Text.Encoding.UTF8.GetString(bytes);
-        //    Debug.Log("OnMessage! " + message);
-        //};
-
-        webSocket.OnReceiveChatJson<ResponseBodyChatLog>(nameof(ResponseChatLog), OnReceiveBodyChatLog);
+        webSocket.OnReceiveRankJson<ResponseBodyGetRankList>(nameof(ResponseGetRankList), OnReceiveBodyGetRankList);
 
         // Keep sending messages at every 0.3s
         // InvokeRepeating("SendWebSocketMessage", 0.0f, 0.3f);
@@ -38,17 +27,18 @@ public class ChatTest : MonoBehaviour
 
     public async void Send()
     {
-        await webSocket.SendChatJson(new RequestChatLog()
+        await webSocket.SendRankJson(new RequestGetRankList()
         {
-            body = new RequestBodyChatLog()
+            body = new RequestBodyGetRankList()
             {
                 userUid = "useruid1234566",
+                seasonId = 1,
             }
         });
 
     }
 
-    // ±‚∫ª ∆–≈∂ ∫∏≥ª±‚
+    // Í∏∞Î≥∏ Ìå®ÌÇ∑ Î≥¥ÎÇ¥Í∏∞
     /*
     private void OnMessage(byte[] bytes) 
     {
@@ -61,11 +51,11 @@ public class ChatTest : MonoBehaviour
     }
     */
 
-    // º≠πˆø°º≠ ∫∏≥ª¡÷¥¬ ∞™ ∆–≈∂∫∞ ±∏∫– »Æ¿Œ
-    private void OnReceiveBodyChatLog(ResponseBodyChatLog body)
+    // ÏÑúÎ≤ÑÏóêÏÑú Î≥¥ÎÇ¥Ï£ºÎäî Í∞í Ìå®ÌÇ∑Î≥Ñ Íµ¨Î∂Ñ ÌôïÏù∏
+    private void OnReceiveBodyGetRankList(ResponseBodyGetRankList body)
     {
         Debug.Log($"OnReceiveBodyGetRankList : {body.error}");
-        //Debug.Log($"OnReceiveBodyGetRankList : {body.seasonRankList}");
+        Debug.Log($"OnReceiveBodyGetRankList : {body.seasonRankList}");
     }
 
     private void OnOpen()
@@ -91,7 +81,6 @@ public class ChatTest : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        //Debug.Log("ChatTest Update!");
         webSocket.DispatchMessageQueue();
     }
 }
