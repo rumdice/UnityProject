@@ -1,72 +1,55 @@
 using UnityEngine;
+using System;
 using NativeWebSocket;
-using ChatPacketStruct;
+using ChatPacket;
 
 public class ChatTest : MonoBehaviour
 {
     private const string ChatServerUrl = "ws://localhost:4000";
-    private WebSocket webSocket;
+    private WebSocket ws;
 
-    // Start is called before the first frame update
     private async void Start()
     {
         Debug.Log("ChatTest Start!");
-        webSocket = new WebSocket(ChatServerUrl);
 
-        webSocket.OnOpen += OnOpen;
-        webSocket.OnError += OnError;
-        webSocket.OnClose += OnClose;
+        ws = new WebSocket(ChatServerUrl);
 
-        // 기본 응답 받은 메시지 표기
-        //webSocket.OnMessage += (bytes) => 
-        //{
-        //    Debug.Log("OnMessage!");
-        //    Debug.Log(bytes);
+        ws.OnOpen += OnOpen;
+        ws.OnError += OnError;
+        ws.OnClose += OnClose;
 
-        //    // getting the message as a string
-        //    var message = System.Text.Encoding.UTF8.GetString(bytes);
-        //    Debug.Log("OnMessage! " + message);
-        //};
+        ws.OnMessage += (bytes) =>
+        {
+            Debug.Log("OnMessage!");
 
-        webSocket.OnReceiveChatJson<ResponseBodyChatLog>(nameof(ResponseChatLog), OnReceiveBodyChatLog);
+            // getting the message as a string
+            var message = System.Text.Encoding.UTF8.GetString(bytes); 
+            Debug.Log("msg::" + message); // 서버에서 보내는 ping...옴
 
-        // Keep sending messages at every 0.3s
-        // InvokeRepeating("SendWebSocketMessage", 0.0f, 0.3f);
+            // TODO: 정해진 방식대로 패킷을 받고 이 부분에서 분해 후 매핑된 함수 call
+            // 패킷을 클라 쪽에서 어떤식으로 받아서 처리할지는 고민..그냥 솔루션 사용이 낫나.
+        };
 
-        await webSocket.Connect();
+        await ws.Connect();
+        // webSocket.OnReceiveChatJson<ResponseBodyChatLog>(nameof(ResponseChatLog), OnReceiveBodyChatLog);
     }
 
     public async void Send()
     {
-        await webSocket.SendChatJson(new RequestChatLog()
-        {
-            body = new RequestBodyChatLog()
-            {
-                userUid = "useruid1234566",
-            }
-        });
-
+        //await webSocket.SendChatJson(new RequestChatLog()
+        //{
+        //    body = new RequestBodyChatLog()
+        //    {
+        //        userUid = "useruid1234566",
+        //    }
+        //});
     }
-
-    // 기본 패킷 보내기
-    /*
-    private void OnMessage(byte[] bytes) 
-    {
-        Debug.Log("OnMessage!");
-        Debug.Log(bytes);
-
-        // getting the message as a string
-        var message = System.Text.Encoding.UTF8.GetString(bytes);
-        Debug.Log("OnMessage! " + message);
-    }
-    */
 
     // 서버에서 보내주는 값 패킷별 구분 확인
-    private void OnReceiveBodyChatLog(ResponseBodyChatLog body)
-    {
-        Debug.Log($"OnReceiveBodyGetRankList : {body.error}");
-        //Debug.Log($"OnReceiveBodyGetRankList : {body.seasonRankList}");
-    }
+    //private void OnReceiveBodyChatLog(ResponseBodyChatLog body)
+    //{
+    //    Debug.Log($"result errorcode: {body.error}");
+    //}
 
     private void OnOpen()
     {
@@ -83,15 +66,15 @@ public class ChatTest : MonoBehaviour
         Debug.Log($"Connection closed : {closeCode}");
     }
 
+
     protected async void OnApplicationQuit()
     {
-        await webSocket.Close();
+        await ws.Close();
     }
 
-    // Update is called once per frame
     private void Update()
     {
         //Debug.Log("ChatTest Update!");
-        webSocket.DispatchMessageQueue();
+        ws.DispatchMessageQueue();
     }
 }
